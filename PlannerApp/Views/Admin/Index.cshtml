@@ -1,0 +1,109 @@
+﻿@model List<PlannerApp.Models.User>
+@{
+    ViewBag.Title = "Пользователи";
+}
+<h2>Пользователи</h2>
+
+<a asp-action="Create" class="btn">Добавить пользователя</a>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Логин</th>
+            <th>Роль</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.UserId</td>
+                <td>@user.Login</td>
+                <td>@user.Role?.Title</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@user.UserId">Редактировать</a> |
+                    <a asp-action="Delete" asp-route-id="@user.UserId" onclick="return confirm('Удалить пользователя?')">Удалить</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<style>
+    body {
+        margin: 0;
+        font-family: 'Roboto', sans-serif;
+        background-color: #F5F7FA;
+    }
+
+    .container {
+        max-width: 1000px;
+        margin: 32px auto;
+        padding: 24px;
+        background-color: #FFFFFF;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        color: #1A1A1A;
+        font-size: 24px;
+        margin-bottom: 24px;
+        font-weight: 500;
+    }
+
+    .actions {
+        margin-bottom: 16px;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #8B4513;
+        color: #FFFFFF;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: background-color 0.2s;
+        margin-right: 8px;
+    }
+
+        .btn:hover {
+            background-color: #6B3A0F;
+        }
+
+        .btn.delete {
+            background-color: #DC2626;
+        }
+
+            .btn.delete:hover {
+                background-color: #B91C1C;
+            }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 16px;
+    }
+
+    th, td {
+        padding: 12px;
+        border-bottom: 1px solid #E5E7EB;
+        text-align: left;
+    }
+
+    th {
+        background-color: #F9FAFB;
+        color: #1A1A1A;
+    }
+
+    td {
+        color: #4B5563;
+    }
+
+    tr:hover {
+        background-color: #F3F4F6;
+    }
+</style>

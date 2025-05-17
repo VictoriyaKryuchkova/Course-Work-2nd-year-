@@ -1,0 +1,312 @@
+﻿@model List<PlannerApp.Models.Task>
+
+@{
+    bool groupByCategory = ViewBag.GroupByCategory ?? false;
+    string sortBy = ViewBag.CurrentSort as string ?? "";
+}
+
+<div class="container">
+    <h2>Мои задачи</h2>
+
+    <div class="actions">
+        @if (ViewBag.Permissions.Contains("Создание задачи"))
+        {
+            <a asp-action="Create" class="btn">Создать задачу</a>
+        }
+
+        @if (ViewBag.Permissions.Contains("Сортировка задач"))
+        {
+            <form method="get" class="sort-form">
+                <select name="sortBy" onchange="this.form.submit()">
+                    <option value="">Сортировать...</option>
+                    <option value="Title" selected="@(sortBy == "Title" ? "selected" : null)">По названию</option>
+                    <option value="DateEnd" selected="@(sortBy == "DateEnd" ? "selected" : null)">По сроку</option>
+                    <option value="Status" selected="@(sortBy == "Status" ? "selected" : null)">По статусу</option>
+                </select>
+                <input type="hidden" name="groupByCategory" value="@groupByCategory" />
+            </form>
+        }
+
+        <form method="get" style="display:inline;">
+            <input type="hidden" name="sortBy" value="@sortBy" />
+            <input type="hidden" name="groupByCategory" value="@(groupByCategory ? "false" : "true")" />
+            <button type="submit" class="btn small">@((groupByCategory ? "Скрыть" : "Фильтр по категориям"))</button>
+        </form>
+    </div>
+
+    <form method="post">
+        @Html.AntiForgeryToken()
+    </form>
+
+    @if (groupByCategory)
+    {
+        var groupedTasks = Model
+        .GroupBy(t => t.Category?.Title ?? "Без категории")
+        .OrderBy(g => g.Key);
+
+        <ul class="category-tree">
+            @foreach (var group in groupedTasks)
+            {
+                <li>
+                    <details open>
+                        <summary><strong>@group.Key</strong> (@group.Count())</summary>
+                        <ul>
+                            @{
+                                var sortedGroup = sortBy switch
+                                {
+                                    "Title" => group.OrderBy(t => t.Title),
+                                    "DateEnd" => group.OrderBy(t => t.DateEnd),
+                                    "Status" => group.OrderBy(t => t.Status?.Title != "Выполнена"),
+                                    _ => group.OrderBy(t => t.TaskId)
+                                };
+                            }
+
+                            @foreach (var task in sortedGroup)
+                            {
+                                <li class="task-item">
+                                    <div><strong>@task.Title</strong> — @(task.TaskList?.Title) | Срок: @task.DateEnd.ToString("dd.MM.yyyy")</div>
+                                    <div class="task-actions">
+                                        @if (ViewBag.Permissions.Contains("Указание статуса выполнения"))
+                                        {
+                                            <input type="checkbox"
+                                            @(task.Status?.Title == "Выполнена" ? "checked" : "")
+                                                   onchange="toggleStatus(@task.TaskId)" />
+                                        }
+                                        else
+                                        {
+                                            <span>@(task.Status?.Title ?? "-")</span>
+                                        }
+
+                                        @if (ViewBag.Permissions.Contains("Редактирование задачи"))
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@task.TaskId" class="btn small">Редактировать</a>
+                                        }
+                                        @if (ViewBag.Permissions.Contains("Удаление задачи"))
+                                        {
+                                            <a asp-action="Delete" asp-route-id="@task.TaskId" class="btn small delete"
+                                               onclick="return confirm('Удалить задачу?')">Удалить</a>
+                                        }
+                                        @if (ViewBag.Permissions.Contains("Перемещение задач между списками"))
+                                        {
+                                            <select asp-action="MoveToList" asp-route-id="@task.TaskId" onchange="location.href=this.value">
+                                                <option value="">Переместить...</option>
+                                                @foreach (var list in ViewBag.TaskLists)
+                                                {
+                                                    <option value="@Url.Action("MoveToList", new { id = task.TaskId, listId = list.TaskListId })">@list.Title</option>
+                                                }
+                                            </select>
+                                        }
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </details>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Список</th>
+                    <th>Категория</th>
+                    <th style="text-align:center;">Выполнена</th>
+                    <th>Срок</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var task in Model)
+                {
+                    <tr>
+                        <td>@task.Title</td>
+                        <td>@(task.TaskList?.Title ?? "-")</td>
+                        <td>@(task.Category?.Title ?? "-")</td>
+                        <td style="text-align:center;">
+                            @if (ViewBag.Permissions.Contains("Указание статуса выполнения"))
+                            {
+                                <input type="checkbox"
+                                @(task.Status?.Title == "Выполнена" ? "checked" : "")
+                                       onchange="toggleStatus(@task.TaskId)" />
+                            }
+                            else
+                            {
+                                <span>@(task.Status?.Title ?? "-")</span>
+                            }
+                        </td>
+                        <td>@task.DateEnd.ToString("dd.MM.yyyy")</td>
+                        <td>
+                            @if (ViewBag.Permissions.Contains("Редактирование задачи"))
+                            {
+                                <a asp-action="Edit" asp-route-id="@task.TaskId" class="btn small">Редактировать</a>
+                            }
+                            @if (ViewBag.Permissions.Contains("Удаление задачи"))
+                            {
+                                <a asp-action="Delete" asp-route-id="@task.TaskId" class="btn small delete" onclick="return confirm('Удалить задачу?')">Удалить</a>
+                            }
+                            @if (ViewBag.Permissions.Contains("Перемещение задач между списками"))
+                            {
+                                <select asp-action="MoveToList" asp-route-id="@task.TaskId" onchange="location.href=this.value">
+                                    <option value="">Переместить...</option>
+                                    @foreach (var list in ViewBag.TaskLists)
+                                    {
+                                        <option value="@Url.Action("MoveToList", new { id = task.TaskId, listId = list.TaskListId })">@list.Title</option>
+                                    }
+                                </select>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+<script>
+    function toggleStatus(taskId) {
+        fetch(`/Tasks/ToggleStatus/${taskId}`, {
+            method: 'POST',
+            headers: {
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+            }
+        }).then(response => {
+            if (!response.ok) {
+                alert("Не удалось обновить статус задачи");
+            }
+        });
+    }
+</script>
+
+<style>
+    body {
+        margin: 0;
+
+        font-family: 'Roboto', sans-serif;
+        background-color: #F5F7FA;
+    }
+
+
+    .container {
+        width: 100%;
+        max-width: 900px;
+        margin: 32px auto;
+        padding: 24px;
+        background-color: #FFFFFF;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        color: #1A1A1A;
+        font-size: 24px;
+        margin-bottom: 24px;
+        font-weight: 500;
+    }
+
+
+
+
+    .actions {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 24px;
+        align-items: center;
+    }
+
+
+    .btn {
+        display: inline-block;
+        padding: 12px 24px;
+        background-color: #8B4513;
+        color: #FFFFFF;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        transition: background-color 0.2s;
+    }
+
+
+        .btn:hover {
+            background-color: #6B3A0F;
+        }
+
+        .btn.small {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .btn.delete {
+            background-color: #DC2626;
+        }
+
+            .btn.delete:hover {
+                background-color: #B91C1C;
+            }
+
+    .sort-form {
+        display: inline-block;
+    }
+
+    select {
+        padding: 8px;
+        border: 1px solid #D1D5DB;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 24px;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #E5E7EB;
+    }
+
+    th {
+        background-color: #F9FAFB;
+        color: #1A1A1A;
+        font-weight: 500;
+    }
+
+    td {
+        color: #4B5563;
+    }
+
+    tr:hover {
+        background-color: #F9FAFB;
+    }
+
+    .category-tree {
+        list-style: none;
+        padding-left: 0;
+        margin-top: 24px;
+    }
+
+        .category-tree > li {
+            margin-bottom: 16px;
+            border-left: 3px solid #8B4513;
+            padding-left: 12px;
+        }
+
+    .task-item {
+        margin: 6px 0;
+        padding: 8px;
+        background-color: #F3F4F6;
+        border-radius: 6px;
+    }
+
+    .task-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 4px;
+        align-items: center;
+    }
+</style>

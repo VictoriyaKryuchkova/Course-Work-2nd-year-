@@ -1,0 +1,102 @@
+﻿@model PlannerApp.Models.Task
+<div class="container">
+    <h2>Редактировать задачу</h2>
+    <form method="post">
+        <input type="hidden" asp-for="TaskId" />
+        <input type="text" asp-for="Title" placeholder="Название" required />
+        <input type="datetime-local" asp-for="DateEnd" required />
+        <select name="taskListId">
+            <option value="">Без списка</option>
+            @foreach (var list in ViewBag.TaskLists)
+            {
+                <option value="@list.TaskListId" selected="@(list.TaskListId == Model.TaskListId ? "selected" : null)">@list.Title</option>
+            }
+        </select>
+        <select name="categoryId">
+            <option value="">Без категории</option>
+            @foreach (var cat in ViewBag.Categories)
+            {
+                <option value="@cat.CategoryId" selected="@(cat.CategoryId == Model.CategoryId ? "selected" : null)">@cat.Title</option>
+            }
+        </select>
+        <textarea name="description" placeholder="Описание">@Model.Description</textarea>
+        <button type="submit">Сохранить</button>
+        <a asp-action="Index" class="btn">Отмена</a>
+    </form>
+</div>
+
+<style>
+    body {
+        margin: 0;
+        font-family: 'Roboto', sans-serif;
+        background-color: #F5F7FA;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 400px;
+        padding: 24px;
+        background-color: #FFFFFF;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    h2 {
+        color: #1A1A1A;
+        font-size: 24px;
+        margin-bottom: 24px;
+        font-weight: 500;
+    }
+
+    input[type="text"], input[type="datetime-local"], select, textarea {
+        width: 100%;
+        padding: 12px;
+        margin: 12px 0;
+        border: 1px solid #D1D5DB;
+        border-radius: 8px;
+        font-size: 16px;
+        box-sizing: border-box;
+    }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #8B4513;
+            box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+        }
+
+    textarea {
+        height: 100px;
+        resize: vertical;
+    }
+
+    label {
+        display: block;
+        margin: 12px 0;
+        color: #4B5563;
+    }
+
+    button, .btn {
+        width: 100%;
+        padding: 12px;
+        background-color: #8B4513;
+        border: none;
+        border-radius: 8px;
+        color: #FFFFFF;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 12px;
+        transition: background-color 0.2s;
+    }
+
+        button:hover, .btn:hover {
+            background-color: #6B3A0F;
+        }
+</style>

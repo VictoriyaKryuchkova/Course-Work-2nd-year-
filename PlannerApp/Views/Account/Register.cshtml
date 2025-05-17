@@ -1,0 +1,101 @@
+﻿@using PlannerApp.Models
+<div class="container">
+    <h2>Регистрация в TaskFlow</h2>
+    @if (ViewBag.Error != null)
+    {
+        <p class="error">@ViewBag.Error</p>
+    }
+    <form method="post">
+        <input type="text" name="login" placeholder="Логин" required />
+        <input type="password" name="password" placeholder="Пароль" required />
+        <select name="roleId" required>
+            <option value="">Выберите роль</option>
+            @foreach (Role role in ViewBag.Roles)
+            {
+                <option value="@role.RoleId">@role.Title</option>
+            }
+        </select>
+        <button type="submit">Зарегистрироваться</button>
+    </form>
+</div>
+
+<style>
+    body {
+        margin: 0;
+        font-family: 'Roboto', sans-serif;
+        background-color: #F5F7FA;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 400px;
+        padding: 24px;
+        background-color: #FFFFFF;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    h2 {
+        color: #1A1A1A;
+        font-size: 24px;
+        margin-bottom: 24px;
+        font-weight: 500;
+    }
+
+    input[type="text"], input[type="password"], select {
+        width: 100%;
+        padding: 12px;
+        margin: 12px 0;
+        border: 1px solid #D1D5DB;
+        border-radius: 8px;
+        font-size: 16px;
+        box-sizing: border-box;
+    }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #8B4513;
+            box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+        }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        background-color: #8B4513;
+        border: none;
+        border-radius: 8px;
+        color: #FFFFFF;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+        button:hover {
+            background-color: #6B3A0F;
+        }
+
+    a {
+        color: #8B4513;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+    p {
+        margin-top: 16px;
+    }
+
+    .error {
+        color: #DC2626;
+        font-size: 14px;
+    }
+</style>

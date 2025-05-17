@@ -1,0 +1,83 @@
+﻿@inject PlannerApp.Services.PermissionService _permissionService
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] TaskFlow</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/PlannerApp.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="top-navbar navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <span class="navbar-brand">TaskFlow</span>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        
+                        
+                        
+                        @if (_permissionService.HasPermission("Создание списка задач"))
+                        {
+                            
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="TasksLists" asp-action="Index">Списки задач</a>
+                            </li>
+                        }
+                        @if (_permissionService.HasPermission("Создание задачи"))
+                        {
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Tasks" asp-action="Calendar">Календарь</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Tasks" asp-action="Index">Задачи</a>
+                            </li>
+                        }
+                        
+                        
+                        @if (_permissionService.HasPermission("Формирование отчета"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Tasks" asp-action="Reports">Отчеты</a>
+                            </li>
+                        }
+                        
+                    </ul>
+                    <div class="navbar-nav">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Help">Помощь</a>
+                        @if (_permissionService.HasPermission("Создание задачи") || _permissionService.HasPermission("Добавление пользователя"))
+                        {
+                                <a class="nav-link text-dark" href="/Account/Logout">Выйти</a>
+                        }
+                       
+
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    <footer class="footer" style="padding: 4px 0; font-size: 13px;">
+        <div class="container">
+            &copy; 2025 - PlannerApp - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+</body>
+</html>

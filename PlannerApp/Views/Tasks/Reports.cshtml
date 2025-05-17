@@ -1,0 +1,151 @@
+﻿@model List<PlannerApp.Models.Task>
+@using System.Linq
+@{
+    ViewData["Title"] = "Отчеты по задачам";
+}
+
+<div class="container">
+    <h2>Отчеты по задачам</h2>
+
+    <form method="get" asp-action="Reports" class="filter-form">
+        <label>Дата начала:</label>
+        <input type="date" name="startDate" value="@ViewBag.StartDate" />
+        <label>Дата окончания:</label>
+        <input type="date" name="endDate" value="@ViewBag.EndDate" />
+        <button type="submit" class="btn">Фильтровать</button>
+    </form>
+
+    @if (Model.Any())
+    {
+        <form method="post" asp-action="ExportToExcel">
+            <input type="hidden" name="startDate" value="@ViewBag.StartDate" />
+            <input type="hidden" name="endDate" value="@ViewBag.EndDate" />
+            <button type="submit" class="btn">Скачать в Excel</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Название задачи</th>
+                    <th>Категория</th>
+                    <th>Статус</th>
+                    <th>Дата создания</th>
+                    <th>Срок окончания</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var task in Model)
+                {
+                    <tr>
+
+                        <td>@task.Title</td>
+                        <td>@(task.Category?.Title ?? "-")</td>
+                        <td>@(task.Status?.Title ?? "-")</td>
+                        <td>@task.DateCreate.ToString("dd.MM.yyyy")</td>
+                        <td>@task.DateEnd.ToString("dd.MM.yyyy")</td>
+
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>Задачи за выбранный период отсутствуют.</p>
+    }
+</div>
+
+<style>
+    body {
+        margin: 0;
+        font-family: 'Roboto', sans-serif;
+        background-color: #F5F7FA;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 900px;
+        margin: 32px auto;
+        padding: 24px;
+        background-color: #FFFFFF;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        color: #1A1A1A;
+        font-size: 24px;
+        margin-bottom: 24px;
+        font-weight: 500;
+    }
+
+    .filter-form {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 24px;
+        align-items: center;
+    }
+
+    label {
+        color: #4B5563;
+        font-size: 16px;
+    }
+
+    input[type="date"] {
+        padding: 8px;
+        border: 1px solid #D1D5DB;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 12px 24px;
+        background-color: #8B4513;
+        color: #FFFFFF;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        transition: background-color 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+
+        .btn:hover {
+            background-color: #6B3A0F;
+        }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 24px;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #E5E7EB;
+    }
+
+    th {
+        background-color: #F9FAFB;
+        color: #1A1A1A;
+        font-weight: 500;
+    }
+
+    td {
+        color: #4B5563;
+    }
+
+    tr:hover {
+        background-color: #F9FAFB;
+    }
+
+    p {
+        color: #4B5563;
+        font-size: 16px;
+        margin-top: 16px;
+    }
+</style>

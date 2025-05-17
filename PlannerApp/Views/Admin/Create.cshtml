@@ -1,0 +1,96 @@
+﻿@{
+    ViewBag.Title = "Создание пользователя";
+}
+<h2>Создание пользователя</h2>
+
+@if (ViewBag.Error != null)
+{
+    <div style="color: red">@ViewBag.Error</div>
+}
+
+<form method="post">
+    <label>Логин:</label>
+    <input type="text" name="login" required />
+
+    <label>Пароль:</label>
+    <input type="password" name="password" required />
+
+    <label>Роль:</label>
+    <select name="roleId" required>
+        @foreach (var role in ViewBag.Roles)
+        {
+            <option value="@role.RoleId">@role.Title</option>
+        }
+    </select>
+
+    <button type="submit">Создать</button>
+    <a asp-action="Index">Назад</a>
+</form>
+<style>
+    body {
+        margin: 0;
+        font-family: 'Roboto', sans-serif;
+        background-color: #F5F7FA;
+    }
+
+    .container {
+        max-width: 600px;
+        margin: 32px auto;
+        padding: 24px;
+        background-color: #FFFFFF;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        font-size: 24px;
+        color: #1A1A1A;
+        margin-bottom: 24px;
+        font-weight: 500;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 6px;
+        color: #1A1A1A;
+        font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    select {
+        width: 100%;
+        padding: 10px;
+        font-size: 14px;
+        border: 1px solid #D1D5DB;
+        border-radius: 8px;
+        background-color: #FFFFFF;
+    }
+
+    .btn {
+        margin-top: 16px;
+        padding: 10px 24px;
+        background-color: #8B4513;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+        .btn:hover {
+            background-color: #6B3A0F;
+        }
+
+    .error {
+        color: #DC2626;
+        font-size: 14px;
+        margin-bottom: 12px;
+    }
+</style>
